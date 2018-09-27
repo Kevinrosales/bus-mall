@@ -9,7 +9,7 @@ var randomNumber3
 // var detail = document.getElementById('detail');
 var maxClicksAllowed = 25;
 var ctx = document.getElementById("myChart");
-
+// var detail = document.getElementById('detail');
 
 function Item(filepath, fileName, numberOfTimesShown =0, votes =0) {
     this.imgSource = filepath;  
@@ -103,6 +103,7 @@ function eventHandler(event){
     Item.allItems[randomNumber3].numberOfTimesShown++;
 }
 
+
 // function summarizeData() {
 //     var ul = document.createElement('ul');
 
@@ -194,6 +195,5 @@ var myChart = new Chart(ctx, {
     }
 });
 
-
 initializeDatabase();
-setupEventListeners();
+setupEventListeners();\
