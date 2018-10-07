@@ -1,199 +1,225 @@
 'use strict';
 
-var imgElement1 = document.getElementById('slot1');
-var imgElement2 = document.getElementById('slot2');
-var imgElement3 = document.getElementById('slot3');
-var randomNumber1
-var randomNumber2
-var randomNumber3
-// var detail = document.getElementById('detail');
-var maxClicksAllowed = 25;
-var ctx = document.getElementById("myChart");
+var totalClicks = 0;
+var images = [['./img/bag.jpg', './img/banana.jpg', './img/bathroom.jpg', './img/boots.jpg', './img/breakfast.jpg', './img/bubblegum.jpg', './img/chair.jpg', './img/cthulhu.jpg', './img/dog-duck.jpg', './img/dragon.jpg', './img/pen.jpg','./img/pet-sweep.jpg', './img/scissors.jpg','./img/shark.jpg','./img/sweep.png','./img/tauntaun.jpg','./img/unicorn.jpg','./img/usb.gif','./img/water-can.jpg','./img/wine-glass.jpg'], ['bag', 'banana', 'bathroom', 'boots', 'breakfast', 'bubblegum', 'chair', 'cthulhu', 'dog-duck', 'dragon', 'pen', 'pet-sweep', 'scissors', 'shark', 'sweep', 'tauntaun', 'unicorn', 'usb', 'water-can', 'wine-glass']];
+
+var productImages = document.getElementById('product-images');
+var product1 = document.getElementById('product1');
+var product2 = document.getElementById('product2');
+var product3 = document.getElementById('product3');
+var productElements = [product1, product2, product3];
+var randoArray = [];
 
 
-function Item(filepath, fileName, numberOfTimesShown =0, votes =0) {
-    this.imgSource = filepath;  
-    this.fileName = fileName;
-    this.numberOfTimesShown = numberOfTimesShown;
-    this.votes = votes;
-    Item.allItems.push(this);
+function Product(filepath, filename) {
+  this.productImgSrc = filepath;
+  this.productName = filename;
+  this.productShown = 0;
+  this.productSelected = 0;
+
+  Product.allProducts.push(this);
 }
 
-Item.allItems = [];
+Product.allProducts = [];
 
-function randomize(){
-    var rando = Math.floor(Math.random()*Item.allItems.length);
-    return rando;
+Product.prototype.countClicked = function()
+{
+  this.productSelected += 1;
+};
+
+Product.prototype.countShown = function()
+{
+  this.productShown += 1;
+};
+
+Product.prototype.selectionRate = function()
+{
+  var results = Math.floor(((this.productSelected / this.productShown) * 100));
+  if (NaN)
+  {
+    return 0;
+  }
+    else
+  {
+    return results;
+  }
+};
+
+function showProducts()
+{
+  var randomProducts = [rando(0, Product.allProducts.length), rando(0, Product.allProducts.length), rando(0, Product.allProducts.length)];
+
+  if (checkUniqueness(randomProducts) === true && checkLastShown(randomProducts) === false)
+  {
+    for (var j = 0; j < randomProducts.length; j++)
+    {
+      productElements[j].src = Product.allProducts[randomProducts[j]].productImgSrc;
+      productElements[j].alt = Product.allProducts[randomProducts[j]].productName;
+
+      Product.allProducts[randomProducts[j]].countShown();
+    }
+  }
+  else
+  {
+    showProducts();
+  }
+
+  console.log(Product.allProducts);
 }
 
-function initializeDatabase(){
-new Item('img/bag.jpg','bag');
-new Item('img/banana.jpg','banana');
-new Item('img/bathroom.jpg','bathroom');
-new Item('img/boots.jpg','boots');
-new Item('img/breakfast.jpg','breakfast');
-new Item('img/bubblegum.jpg', 'bubblegum');
-new Item('img/chair.jpg', 'chair');
-new Item('img/cthulhu.jpg', 'cthulhu');
-new Item('img/dog-duck.jpg', 'dog-duck');
-new Item('img/dragon.jpg', 'dragon');
-new Item('img/pen.jpg', 'pen');
-new Item('img/pet-sweep.jpg', 'pet-sweep');
-new Item('img/scissors.jpg', 'scissors');
-new Item('img/shark.jpg', 'shark');
-new Item('img/sweep.png', 'sweep');
-new Item('img/tauntaun.jpg', 'tauntaun');
-new Item('img/unicorn.jpg', 'unicorn');
-new Item('img/usb.gif', 'usb');
-new Item('img/water-can.jpg', 'water-can');
-new Item('img/wine-glass.jpg', 'wine-glass');
+
+function rando(min, max)
+{
+  var randomNumber = Math.floor(Math.random() * (max - min)) + min;
+
+  return randomNumber;
 }
 
-function setupEventListeners(){
-    imgElement1.addEventListener('click', eventHandler);
-    imgElement2.addEventListener('click', eventHandler);
-    imgElement3.addEventListener('click', eventHandler);
+
+function checkTotalClicks()
+{
+  totalClicks += 1;
+  console.log('Total Clicks = ', totalClicks);
+  if (totalClicks === 25)
+  {
+    productImages.removeEventListener('click', eventHandler);
+
+    createChart();
+  }
 }
 
-function removeEventListener(){
-    imgElement1.addEventListener('click', eventHandler);
-    imgElement2.addEventListener('click', eventHandler);
-    imgElement3.addEventListener('click', eventHandler);
+
+function checkUniqueness(array)
+{
+  var counts = [];
+
+  for (var i = 0; i < array.length; i++)
+  {
+    if (counts[array[i]] === undefined)
+    {
+      counts[array[i]] = 1;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function checkLastShown(array)
+{
+  var notSame = true;
+
+  if (randoArray[0] === undefined)
+  {
+    randoArray = array;
+  }
+  else
+  {
+    for (var i = 0; i < array.length; i++)
+    {
+      if (randoArray.includes(array[i]))
+      {
+        notSame = false;
+
+        return true;
+      }
+    }
+
+    if (notSame === true)
+    {
+      randoArray = array;
+      return false;
+    }
+  }
+}
+
+function createChart()
+{
+  var timesShown = [];
+  var timesSelected = [];
+  var selectionRates = [];
+
+  for (var i = 0; i < Product.allProducts.length; i++)
+  {
+    timesShown.push(Product.allProducts[i].productShown);
+    timesSelected.push(Product.allProducts[i].productSelected);
+    selectionRates.push(Product.allProducts[i].selectionRate());
+  }
+
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var shownOrSelectedChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: images[1],
+      datasets: [{
+        label: 'Times Shown',
+        data: timesShown,
+        backgroundColor: 'rgba(255, 162, 235, 0.2)',
+        borderColor: 'rgba(255, 162, 235,1)',
+        borderWidth: 1
+      },
+      {
+        label: 'Times Selected',
+        data: timesSelected,
+        backgroundColor: 'rgba(100, 99, 132, 0.2)',
+        borderColor: 'rgba(100, 99, 132, 1)',
+        borderWidth: 2
+      },
+      {
+        label: 'Selection Percentage',
+        data: selectionRates,
+        backgroundColor: 'rgba(300, 99, 132, 0.2)',
+        borderColor: 'rgba(300, 99, 132, 1)',
+        borderWidth: 3
+      }],
+    },
+    options: {
+      scales: {
+        xAxes: [{
+          stacked: true
+        }],
+        yAxes: [{
+          stacked: true,
+
+          ticks: {
+            max: 100,
+            min: 0,
+            stepSize: 20
+          }
+        }]
+      }
+    }
+  });
 }
 
 function eventHandler(event){
-    var imageName = event.target.alt;
-    for (var i=0; i<Item.allItems.length; i++) {
-        if(Item.allItems[i].fileName === imageName) {
-            Item.allItems[i].votes++;
-            maxClicksAllowed--;
-            break;
-        }
-    }
 
-    if(maxClicksAllowed === 0) {
-        removeEventListener();
-        summarizeData();
-        return;
-    }
+  for (var i = 0; i < Product.allProducts.length; i++)
+  {
+    if (event.target.alt === Product.allProducts[i].productName)
+    {
+      Product.allProducts[i].countClicked();
 
-    randomNumber1 = randomize();
-    randomNumber2 = randomize();
-    while(randomNumber1 === randomNumber2){
-        randomNumber2 = randomize();
+      break;
     }
-    randomNumber3 = randomize();
-    while(randomNumber1 === randomNumber3){
-        randomNumber3 = randomize();
-    }
-    while(randomNumber2 === randomNumber3){
-        randomNumber3 = randomize();
-    }
+  }
 
-    imgElement1.src = Item.allItems[randomNumber1].imgSource;
-    imgElement1.alt = Item.allItems[randomNumber1].fileName;
-    Item.allItems[randomNumber1].numberOfTimesShown++;
-
-    imgElement2.src = Item.allItems[randomNumber2].imgSource;
-    imgElement2.alt = Item.allItems[randomNumber2].fileName;
-    Item.allItems[randomNumber2].numberOfTimesShown++;
-    
-    imgElement3.src = Item.allItems[randomNumber3].imgSource;
-    imgElement3.alt = Item.allItems[randomNumber3].fileName;
-    Item.allItems[randomNumber3].numberOfTimesShown++;
+  checkTotalClicks();
+  showProducts();
 }
 
-// function summarizeData() {
-//     var ul = document.createElement('ul');
+function setEventListeners()
+{
+  productImages.addEventListener('click', eventHandler);
+}
 
-//     for(var i=0; i<Item.allItems.length; i++) {
-//         var li = document.createElement('li');
-//         li.textContent = `
-//         ${Item.allItems[i].fileName}
-//         Views: ${Item.allItems[i].numberOfTimesShown}
-//         votes: ${Item.allItems[i].votes}
-//         `;
-//     ul.appendChild(li);
-//     }
-//     detail.appendChild(ul);
-// }
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ["Bag", "Banana", "Bathroom", "Boots", "Breakfast", "Bubblegum", "Chair", "Cthulhu", "Dog-Duck", "Dragon", "Pen", "Pet Sweep", "Scissors", "Shark", "Sweep", "Tauntaun", "Unicorn", "Usb", "Water Can", "Wine Glass"],
-        datasets: [{
-            label: '# of votes',
-            data: [Item.allItems[0].votes, Item.allItems[1].votes, Item.allItems[2].votes, Item.allItems[3].votes, Item.allItems[4].votes, Item.allItems[5].votes, Item.allItems[6].votes, Item.allItems[7].votes, Item.allItems[8].votes, Item.allItems[9].votes, Item.allItems[10].votes, Item.allItems[11].votes, Item.allItems[12].votes, Item.allItems[13].votes, Item.allItems[14].votes, Item.allItems[15].votes, Item.allItems[16].votes, Item.allItems[17].votes, Item.allItems[18].votes, Item.allItems[19].votes,],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)' ,
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)'
-                
-            ],
-            borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        title:{
-            display: true,
-            text: 'Results of Survey'
-        },
-        scales: {
-            gridLines:[{
-                tickMarkLength: 50
-            }],
-            yAxes: [{
-                ticks: {
-                    min: 0,
-                    stepSize: 1, 
-                },
-                weight: -20
-            }]
-        }
-    
-    }
-});
+for (var i = 0; i < images[0].length; i++)
+{
+  new Product(images[0][i], images[1][i]);
+}
 
-
-initializeDatabase();
-setupEventListeners();
+setEventListeners();
+showProducts();

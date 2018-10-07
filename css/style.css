@@ -1,7 +1,17 @@
-img {
-    max-width: 20em;
-    border: 1px solid blueviolet;
-    margin: 15px 30px;
-    padding: 20px;
-    width: 20%
+body > header > nav > figure {
+    float: left;
+    margin-right: .8em;
+    margin-top: .8em;
+}
+
+body > header > nav > h1 {
+    font-size: 3em;
+    padding-top: .5em;
+}
+
+ body > main > section > figure > img {
+    float: left;
+    height: 350px;
+    padding: 1em;
+    width: 30%;
 }
